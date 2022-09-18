@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+"""Helper functions for NFC.
+"""
+
 import numpy as np
 np.set_printoptions(precision=4)
 import struct
