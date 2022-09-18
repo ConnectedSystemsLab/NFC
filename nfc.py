@@ -73,7 +73,7 @@ def calc_log_likelihood(rssis, x, y, f_mean, f_dev, c=0, n=0):
     log_likelihood += log_normal_pdf(rssis[1],
                                      f_mean(n-y, x) + c, f_dev(n-y, x))
     log_likelihood += log_normal_pdf(rssis[2],
-                                     f_mean(n-x, n-1-y) + c, f_dev(n-x, n-y))
+                                     f_mean(n-x, n-y) + c, f_dev(n-x, n-y))
     log_likelihood += log_normal_pdf(rssis[3],
                                      f_mean(y, n-x) + c, f_dev(y, n-x))
 
@@ -84,46 +84,47 @@ def localize_mle(rssis, f_mean, f_dev, c=0, n=0):
     """ Compute location estimate using maximum-likelihood estimation.
     """
 
-    likelihood_grid = np.ones((n, n))
     likelihood_grid = np.vectorize(calc_log_likelihood, excluded=['rssis', 'f_mean', 'f_dev', 'n'])(
-        rssis=rssis, x=np.arange(0, n, 0.1), y=np.arange(0, n, 0.1)[:, np.newaxis], f_mean=f_mean, f_dev=f_dev, c=c, n=n)
+        rssis=rssis,
+        x=np.arange(0, n, 0.1),
+        y=np.arange(0, n, 0.1)[:, np.newaxis],
+        f_mean=f_mean,
+        f_dev=f_dev,
+        c=np.asarray(c)[:, np.newaxis, np.newaxis],
+        n=n
+    )
 
-    return np.unravel_index(np.argmax(likelihood_grid), likelihood_grid.shape)
-
-
-if __name__ == '__main__':
-
+    return np.unravel_index(np.argmax(likelihood_grid), (n*10, n*10,len(c)))
     # Parse input arguments.
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--dirname',   required=True,
-                        help="Path to directory of data files.")
-    parser.add_argument('--prefix',    type=int, required=True,
-                        help="For each condition (air, water, oil, etc).")
-    parser.add_argument('--grid_size', type=int,
-                        required=True, help="Grid size as an integer.")
-    parser.add_argument('--query',     type=float, required=True,
-                        nargs=4, help="RSSI observation to localize.")
-    args = parser.parse_args()
+parser = argparse.ArgumentParser()
+parser.add_argument('--dirname',   default='..',
+                    help="Path to directory of data files.")
+parser.add_argument('--prefix',    type=int, default=0,
+                    help="For each condition (air, water, oil, etc).")
+parser.add_argument('--grid_size', type=int,
+                    default=10, help="Grid size as an integer.")
+args = parser.parse_args()
 
-    # Compute the model from the directory.
-    f_mean, f_dev, f_mean_points, f_dev_points = get_model(
-        args.dirname, 0, args.grid_size)
-    n = args.grid_size  # grid is 0 to n (n+1 by n+1)
-    # Create testing grid.
-    test_rssis = np.empty((n+1, n+1))
-    for x in tqdm(range(n+1)):
-        for y in range(n+1):
-            filename = os.path.join(args.dirname, f"1{x:>02}{y:>02}")
-            rssis = get_rssis(filename)
-            test_rssis[x, y] = np.mean(rssis)
-    # Start testing
-    errors = []
-    for x in tqdm(range(args.grid_size)):
-        for y in range(args.grid_size):
-            rssis = [test_rssis[x, y], test_rssis[n-y, x],
-                     test_rssis[n-x, n-y], test_rssis[y, n-x]]
-            x0, y0 = localize_mle(rssis, f_mean, f_dev, range(-10,10), args.grid_size)
-            x0/=10
-            y0/=10
-            errors.append(np.sqrt((x-x0)**2+(y-y0)**2))
-    print(np.mean(errors))
+# Compute the model from the directory.
+f_mean, f_dev, f_mean_points, f_dev_points = get_model(
+    args.dirname, 0, args.grid_size)
+n = args.grid_size  # grid is 0 to n (n+1 by n+1)
+# Create testing grid.
+test_rssis = np.empty((n+1, n+1))
+for x in tqdm(range(n+1)):
+    for y in range(n+1):
+        filename = os.path.join(args.dirname, f"1{x:>02}{y:>02}")
+        rssis = get_rssis(filename)
+        test_rssis[x, y] = np.mean(rssis)
+# Start testing
+errors = []
+for x in tqdm(range(args.grid_size)):
+    for y in range(args.grid_size):
+        rssis = [test_rssis[x, y], test_rssis[n-y, x],
+                    test_rssis[n-x, n-y], test_rssis[y, n-x]]
+        x0, y0,l = localize_mle(rssis, f_mean, f_dev,
+                                range(-10, 10), args.grid_size)
+        x0 /= 10.0
+        y0 /= 10.0
+        errors.append(np.sqrt((x-x0)**2+(y-y0)**2))
+print(np.mean(errors))
