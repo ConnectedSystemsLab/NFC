@@ -1,2 +1,5 @@
 .vscode/launch.json
-nfc.ipynb
+__pycache__
+.ipynb_checkpoints/
+data/
+

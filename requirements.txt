@@ -4,3 +4,5 @@ numba
 scipy
 matplotlib
 prefixed
+sklearn
+seaborn
