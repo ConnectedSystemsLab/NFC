@@ -1,0 +1,3 @@
+[submodule "gr-nfc"]
+	path = gr-nfc
+	url = git@github.com:TanyaAdams1/gr-nfc.git
