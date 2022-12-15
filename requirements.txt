@@ -1,8 +1,4 @@
 tqdm
-numpy
-numba
-scipy
-matplotlib
 prefixed
-sklearn
 seaborn
+sip
