@@ -78,9 +78,8 @@ class collect_data(gr.top_block, Qt.QWidget):
         # Variables
         ##################################################
         self.y = y = 0
-        self.x = x = 0
+        self.x = x = [[10,10],[20,20],[30,30],[20,10]]
         self.samp_rate = samp_rate = 2e6
-        self.enabled = enabled = 0
         self.d = d = 0
 
         ##################################################
@@ -89,7 +88,11 @@ class collect_data(gr.top_block, Qt.QWidget):
         self.variable_qtgui_msg_push_button_0 = _variable_qtgui_msg_push_button_0_toggle_button = qtgui.MsgPushButton('variable_qtgui_msg_push_button_0', 'pressed',1,"default","default")
         self.variable_qtgui_msg_push_button_0 = _variable_qtgui_msg_push_button_0_toggle_button
 
-        self.top_layout.addWidget(_variable_qtgui_msg_push_button_0_toggle_button)
+        self.top_grid_layout.addWidget(_variable_qtgui_msg_push_button_0_toggle_button, 0, 0, 1, 1)
+        for r in range(0, 1):
+            self.top_grid_layout.setRowStretch(r, 1)
+        for c in range(0, 1):
+            self.top_grid_layout.setColumnStretch(c, 1)
         self.uhd_usrp_source_0 = uhd.usrp_source(
             ",".join(("", '')),
             uhd.stream_args(
@@ -102,87 +105,81 @@ class collect_data(gr.top_block, Qt.QWidget):
         self.uhd_usrp_source_0.set_samp_rate(samp_rate)
         # No synchronization enforced.
 
-        self.uhd_usrp_source_0.set_center_freq(5.65e6, 0)
+        self.uhd_usrp_source_0.set_center_freq(5.95e6, 0)
         self.uhd_usrp_source_0.set_antenna('A', 0)
         self.uhd_usrp_source_0.set_gain(10, 0)
-        self.qtgui_time_sink_x_0 = qtgui.time_sink_f(
-            1024, #size
-            samp_rate, #samp_rate
+        self.qtgui_ledindicator_0 = self._qtgui_ledindicator_0_win = qtgui.GrLEDIndicator("", "green", "red", False, 40, 1, 1, 1, self)
+        self.qtgui_ledindicator_0 = self._qtgui_ledindicator_0_win
+        self.top_grid_layout.addWidget(self._qtgui_ledindicator_0_win, 0, 1, 1, 1)
+        for r in range(0, 1):
+            self.top_grid_layout.setRowStretch(r, 1)
+        for c in range(1, 2):
+            self.top_grid_layout.setColumnStretch(c, 1)
+        self.qtgui_freq_sink_x_0 = qtgui.freq_sink_c(
+            32768, #size
+            window.WIN_BLACKMAN_hARRIS, #wintype
+            5.95e6, #fc
+            samp_rate, #bw
             "", #name
-            1, #number of inputs
+            1,
             None # parent
         )
-        self.qtgui_time_sink_x_0.set_update_time(0.10)
-        self.qtgui_time_sink_x_0.set_y_axis(-1, 1)
-
-        self.qtgui_time_sink_x_0.set_y_label('Amplitude', "")
-
-        self.qtgui_time_sink_x_0.enable_tags(True)
-        self.qtgui_time_sink_x_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
-        self.qtgui_time_sink_x_0.enable_autoscale(False)
-        self.qtgui_time_sink_x_0.enable_grid(False)
-        self.qtgui_time_sink_x_0.enable_axis_labels(True)
-        self.qtgui_time_sink_x_0.enable_control_panel(False)
-        self.qtgui_time_sink_x_0.enable_stem_plot(False)
+        self.qtgui_freq_sink_x_0.set_update_time(0.10)
+        self.qtgui_freq_sink_x_0.set_y_axis((-140), 10)
+        self.qtgui_freq_sink_x_0.set_y_label('Relative Gain', 'dB')
+        self.qtgui_freq_sink_x_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, 0.0, 0, "")
+        self.qtgui_freq_sink_x_0.enable_autoscale(False)
+        self.qtgui_freq_sink_x_0.enable_grid(False)
+        self.qtgui_freq_sink_x_0.set_fft_average(1.0)
+        self.qtgui_freq_sink_x_0.enable_axis_labels(True)
+        self.qtgui_freq_sink_x_0.enable_control_panel(False)
+        self.qtgui_freq_sink_x_0.set_fft_window_normalized(False)
 
 
-        labels = ['Signal 1', 'Signal 2', 'Signal 3', 'Signal 4', 'Signal 5',
-            'Signal 6', 'Signal 7', 'Signal 8', 'Signal 9', 'Signal 10']
+
+        labels = ['', '', '', '', '',
+            '', '', '', '', '']
         widths = [1, 1, 1, 1, 1,
             1, 1, 1, 1, 1]
-        colors = ['blue', 'red', 'green', 'black', 'cyan',
-            'magenta', 'yellow', 'dark red', 'dark green', 'dark blue']
+        colors = ["blue", "red", "green", "black", "cyan",
+            "magenta", "yellow", "dark red", "dark green", "dark blue"]
         alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
             1.0, 1.0, 1.0, 1.0, 1.0]
-        styles = [1, 1, 1, 1, 1,
-            1, 1, 1, 1, 1]
-        markers = [-1, -1, -1, -1, -1,
-            -1, -1, -1, -1, -1]
-
 
         for i in range(1):
             if len(labels[i]) == 0:
-                self.qtgui_time_sink_x_0.set_line_label(i, "Data {0}".format(i))
+                self.qtgui_freq_sink_x_0.set_line_label(i, "Data {0}".format(i))
             else:
-                self.qtgui_time_sink_x_0.set_line_label(i, labels[i])
-            self.qtgui_time_sink_x_0.set_line_width(i, widths[i])
-            self.qtgui_time_sink_x_0.set_line_color(i, colors[i])
-            self.qtgui_time_sink_x_0.set_line_style(i, styles[i])
-            self.qtgui_time_sink_x_0.set_line_marker(i, markers[i])
-            self.qtgui_time_sink_x_0.set_line_alpha(i, alphas[i])
+                self.qtgui_freq_sink_x_0.set_line_label(i, labels[i])
+            self.qtgui_freq_sink_x_0.set_line_width(i, widths[i])
+            self.qtgui_freq_sink_x_0.set_line_color(i, colors[i])
+            self.qtgui_freq_sink_x_0.set_line_alpha(i, alphas[i])
 
-        self._qtgui_time_sink_x_0_win = sip.wrapinstance(self.qtgui_time_sink_x_0.qwidget(), Qt.QWidget)
-        self.top_layout.addWidget(self._qtgui_time_sink_x_0_win)
-        self.qtgui_ledindicator_0 = self._qtgui_ledindicator_0_win = qtgui.GrLEDIndicator("", "green", "red", False, 40, 1, 1, 1, self)
-        self.qtgui_ledindicator_0 = self._qtgui_ledindicator_0_win
-        self.top_layout.addWidget(self._qtgui_ledindicator_0_win)
-        self.nfc_controlled_splitter_0 = nfc.controlled_splitter(10000000)
-        self.blocks_stream_to_vector_decimator_0 = blocks.stream_to_vector_decimator(
-            item_size=gr.sizeof_gr_complex,
-            sample_rate=samp_rate,
-            vec_rate=30,
-            vec_len=1)
-        self.blocks_nlog10_ff_0 = blocks.nlog10_ff(1, 1, 0)
-        self.blocks_moving_average_xx_0 = blocks.moving_average_cc(100000, 1/100000, 4000, 1)
+        self._qtgui_freq_sink_x_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0.qwidget(), Qt.QWidget)
+        self.top_layout.addWidget(self._qtgui_freq_sink_x_0_win)
+        self.nfc_series_reader_0 = nfc.series_reader(self.get_x)
+        self.nfc_controlled_splitter_0 = nfc.controlled_splitter(3000000)
+        self.nfc_arduino_0 = nfc.arduino('/dev/ttyACM1')
+        self.blocks_msgpair_to_var_0 = blocks.msg_pair_to_var(self.set_y)
         self.blocks_message_debug_0 = blocks.message_debug(True)
-        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex*1, './results/str(d)+str(x).zfill(2)+str(y).zfill(2)', True)
+        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex*1, 'results/'+str(y), True)
         self.blocks_file_sink_0.set_unbuffered(False)
-        self.blocks_complex_to_mag_squared_0 = blocks.complex_to_mag_squared(1)
 
 
         ##################################################
         # Connections
         ##################################################
+        self.msg_connect((self.nfc_arduino_0, 'finished'), (self.blocks_msgpair_to_var_0, 'inpair'))
+        self.msg_connect((self.nfc_arduino_0, 'finished'), (self.nfc_controlled_splitter_0, 'enable'))
         self.msg_connect((self.nfc_controlled_splitter_0, 'msg_out'), (self.blocks_message_debug_0, 'print'))
+        self.msg_connect((self.nfc_controlled_splitter_0, 'msg_out'), (self.nfc_series_reader_0, 'trigger'))
         self.msg_connect((self.nfc_controlled_splitter_0, 'msg_out'), (self.qtgui_ledindicator_0, 'state'))
+        self.msg_connect((self.nfc_series_reader_0, 'value'), (self.blocks_message_debug_0, 'print'))
+        self.msg_connect((self.nfc_series_reader_0, 'value'), (self.nfc_arduino_0, 'position'))
         self.msg_connect((self.variable_qtgui_msg_push_button_0, 'pressed'), (self.blocks_message_debug_0, 'print'))
         self.msg_connect((self.variable_qtgui_msg_push_button_0, 'pressed'), (self.nfc_controlled_splitter_0, 'enable'))
-        self.connect((self.blocks_complex_to_mag_squared_0, 0), (self.blocks_nlog10_ff_0, 0))
-        self.connect((self.blocks_moving_average_xx_0, 0), (self.blocks_stream_to_vector_decimator_0, 0))
-        self.connect((self.blocks_nlog10_ff_0, 0), (self.qtgui_time_sink_x_0, 0))
-        self.connect((self.blocks_stream_to_vector_decimator_0, 0), (self.blocks_complex_to_mag_squared_0, 0))
         self.connect((self.nfc_controlled_splitter_0, 1), (self.blocks_file_sink_0, 0))
-        self.connect((self.nfc_controlled_splitter_0, 0), (self.blocks_moving_average_xx_0, 0))
+        self.connect((self.nfc_controlled_splitter_0, 0), (self.qtgui_freq_sink_x_0, 0))
         self.connect((self.uhd_usrp_source_0, 0), (self.nfc_controlled_splitter_0, 0))
 
 
@@ -199,6 +196,7 @@ class collect_data(gr.top_block, Qt.QWidget):
 
     def set_y(self, y):
         self.y = y
+        self.blocks_file_sink_0.open('results/'+str(self.y))
 
     def get_x(self):
         return self.x
@@ -211,15 +209,8 @@ class collect_data(gr.top_block, Qt.QWidget):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
-        self.blocks_stream_to_vector_decimator_0.set_sample_rate(self.samp_rate)
-        self.qtgui_time_sink_x_0.set_samp_rate(self.samp_rate)
+        self.qtgui_freq_sink_x_0.set_frequency_range(5.95e6, self.samp_rate)
         self.uhd_usrp_source_0.set_samp_rate(self.samp_rate)
-
-    def get_enabled(self):
-        return self.enabled
-
-    def set_enabled(self, enabled):
-        self.enabled = enabled
 
     def get_d(self):
         return self.d
