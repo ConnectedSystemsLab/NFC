@@ -10,10 +10,9 @@ Localization" in Mobicom 2023 Madrid, Spain. If you find this repository helpful
 # Instructions and Details for the Codebase
 
 1. Create and activate the conda environment from the yaml file in the codebase
-'''bash
+```bash
 conda env create -f MobicomArtifact.yml
-'''
-
+```
 2. Create a directory in your home folder titled "~/ProjectEspana/"
 3. Download the datafolders into the ProjectEspana/ folder: these datafolders should be "air_newpcb/", "comm20kbps/", "comm500bps/", "commold/", "magneticnonoise/",           "oldpcbporkbr/",   "oldpcbporkbr3/", "comm1kbps/",   "comm2kbps/",   "comm5kbps/", "magneticnoise/",  "new_pork/", "oldpcbairbr/",  "oldpcbporkbr2/",  "old_pcb_pork_lifted_less/"
 4. The following ipynbs Communication.ipynb, Data_Mod_Orig.ipynb, Different_Envs.ipynb, Loc_Generalize.ipynb, Microbenchmarks.ipynb contain code to reproduce to the figures in the paper. Simply run all cells in order to generate the figures once the prior steps are finished.
