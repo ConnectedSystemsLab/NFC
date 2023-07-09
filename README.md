@@ -10,7 +10,7 @@ Localization" in Mobicom 2023 Madrid, Spain. If you find this repository helpful
 # Instructions and Details for the Codebase
 
 1. Create and activate the conda environment from the yaml file in the codebase
-'''
+'''bash
 conda env create -f MobicomArtifact.yml
 '''
 
